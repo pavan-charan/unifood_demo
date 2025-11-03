@@ -26,7 +26,8 @@ export const StudentDashboard: React.FC = () => {
     notifications, 
     cartItems, 
     menuItems,
-    reviews 
+    reviews,
+    getRecommendedItems 
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<TabType>('profile');
@@ -41,6 +42,7 @@ export const StudentDashboard: React.FC = () => {
   const cartItemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
   const totalSpent = completedOrders.reduce((total, order) => total + order.totalAmount, 0);
   const favoriteItems = menuItems.filter(item => item.averageRating >= 4.5).slice(0, 3);
+  const recommended = getRecommendedItems(6);
 
   const tabs = [
     
@@ -69,6 +71,31 @@ export const StudentDashboard: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Recommendations */}
+        {recommended.length > 0 && (
+          <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-semibold text-gray-900">Recommended for you</h2>
+              <Star className="w-5 h-5 text-yellow-500" />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {recommended.map(item => (
+                <div key={item.id} className="flex items-center space-x-3">
+                  <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded-lg" />
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-900 text-sm">{item.name}</p>
+                    <div className="flex items-center space-x-2 text-xs text-gray-600">
+                      <span>₹{item.price}</span>
+                      <span>•</span>
+                      <span>{item.cuisine}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">

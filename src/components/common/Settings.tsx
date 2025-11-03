@@ -29,8 +29,8 @@ export const Settings: React.FC = () => {
     studentId: user?.studentId || '',
     phone: '',
     emergencyContact: '',
-    dietaryRestrictions: [] as string[],
-    allergens: [] as string[]
+    dietaryRestrictions: (user?.dietaryRestrictions || []) as string[],
+    allergens: (user?.allergens || []) as string[]
   });
 
   const [notificationSettings, setNotificationSettings] = useState({
@@ -72,19 +72,21 @@ export const Settings: React.FC = () => {
   const dietaryOptions = ['Vegetarian', 'Vegan', 'Gluten-Free', 'Dairy-Free', 'Keto', 'Low-Sodium'];
   const allergenOptions = ['Nuts', 'Dairy', 'Gluten', 'Eggs', 'Seafood', 'Soy', 'Shellfish'];
 
-  // 🔥 Load settings from localStorage on mount
+  // 🔥 Load settings from localStorage on mount (non-critical fields)
   useEffect(() => {
     if (user) {
       const settingsKey = `unifood_settings_${user.id}`;
       const savedSettings = JSON.parse(localStorage.getItem(settingsKey) || '{}');
       
-      // Load dietary and allergen preferences
-      if (savedSettings.dietaryRestrictions) {
-        setProfileData(prev => ({ ...prev, dietaryRestrictions: savedSettings.dietaryRestrictions }));
-      }
-      if (savedSettings.allergens) {
-        setProfileData(prev => ({ ...prev, allergens: savedSettings.allergens }));
-      }
+      // dietaryRestrictions and allergens now come from DB via user
+      setProfileData(prev => ({
+        ...prev,
+        name: user.name,
+        email: user.email,
+        studentId: user.studentId || '',
+        dietaryRestrictions: user.dietaryRestrictions || [],
+        allergens: user.allergens || []
+      }));
       if (savedSettings.phone) {
         setProfileData(prev => ({ ...prev, phone: savedSettings.phone }));
       }
@@ -119,7 +121,9 @@ export const Settings: React.FC = () => {
         // 🔥 Save profile to Supabase database
         const success = await updateProfile(user.id, {
           name: profileData.name,
-          studentId: profileData.studentId
+          studentId: profileData.studentId,
+          dietaryRestrictions: profileData.dietaryRestrictions,
+          allergens: profileData.allergens
         });
         
         if (!success) {
@@ -128,13 +132,11 @@ export const Settings: React.FC = () => {
           return;
         }
 
-        // Also save dietary/allergen preferences to localStorage (not in users table)
+        // Save non-critical fields to localStorage only
         const settingsKey = `unifood_settings_${user.id}`;
         const currentSettings = JSON.parse(localStorage.getItem(settingsKey) || '{}');
         localStorage.setItem(settingsKey, JSON.stringify({
           ...currentSettings,
-          dietaryRestrictions: profileData.dietaryRestrictions,
-          allergens: profileData.allergens,
           phone: profileData.phone,
           emergencyContact: profileData.emergencyContact
         }));

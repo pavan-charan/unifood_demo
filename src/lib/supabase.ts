@@ -3,7 +3,13 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://tawnfndnhnrjttchtncd.supabase.co'
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InRhd25mbmRuaG5yanR0Y2h0bmNkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTcyMzkxMDUsImV4cCI6MjA3MjgxNTEwNX0.ppnDZ7KBJ1thV57m46n453u1XyzlPxLUI88wnyFx-Yk'
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true
+  }
+})
 
 // Database Types
 export interface Database {
@@ -18,6 +24,8 @@ export interface Database {
           role: 'student' | 'manager'
           is_verified: boolean
           loyalty_points: number
+          dietary_preferences?: string[]
+          allergens?: string[]
           created_at: string
           updated_at: string
         }
@@ -29,6 +37,8 @@ export interface Database {
           role?: 'student' | 'manager'
           is_verified?: boolean
           loyalty_points?: number
+          dietary_preferences?: string[]
+          allergens?: string[]
           created_at?: string
           updated_at?: string
         }
@@ -40,6 +50,8 @@ export interface Database {
           role?: 'student' | 'manager'
           is_verified?: boolean
           loyalty_points?: number
+          dietary_preferences?: string[]
+          allergens?: string[]
           created_at?: string
           updated_at?: string
         }

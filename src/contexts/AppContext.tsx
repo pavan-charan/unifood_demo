@@ -46,6 +46,9 @@ interface AppContextType {
   
   // Daily token reset
   generateDailyToken: () => string;
+
+  // Recommendations
+  getRecommendedItems: (limit?: number) => MenuItem[];
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -171,12 +174,17 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const loadDataFromSupabase = async () => {
     try {
+      // Count total menu items to decide seeding just once
+      const { count } = await supabase
+        .from('menu_items')
+        .select('id', { count: 'exact', head: true });
+
       // Load menu items
       const { data: menuData } = await supabase
         .from('menu_items')
         .select('*')
         .eq('is_available', true);
-      
+
       if (menuData && menuData.length > 0) {
         const formattedMenuItems: MenuItem[] = menuData.map(item => ({
           id: item.id,
@@ -197,9 +205,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           preparationTime: item.preparation_time
         }));
         setMenuItems(formattedMenuItems);
-      } else {
-        // If no data in Supabase, use sample data and insert it
+      } else if (!count || count === 0) {
+        // If the table is empty, insert sample data once
         await insertSampleData();
+      } else {
+        // Table has items but none available; show none without reseeding
+        setMenuItems([]);
       }
 
       // Load orders if user is logged in
@@ -280,7 +291,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     try {
       const { error } = await supabase
         .from('menu_items')
-        .insert(SAMPLE_MENU_ITEMS.map(item => ({
+        .upsert(SAMPLE_MENU_ITEMS.map(item => ({
           id: item.id,
           name: item.name,
           description: item.description,
@@ -297,7 +308,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
           average_rating: item.averageRating,
           review_count: item.reviewCount,
           preparation_time: item.preparationTime
-        })));
+        })), { onConflict: 'name' });
 
       if (!error) {
         setMenuItems(SAMPLE_MENU_ITEMS);
@@ -474,6 +485,41 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       toast.error('Failed to create order');
       return '';
     }
+  };
+
+  const getRecommendedItems = (limit: number = 8): MenuItem[] => {
+    // Basic scoring based on user preferences and ratings
+    const dietary = (user?.dietaryRestrictions || []).map(v => v.toLowerCase());
+    const avoidAllergens = (user?.allergens || []).map(v => v.toLowerCase());
+
+    const scored = menuItems
+      .filter(item => {
+        // Filter out items containing allergens
+        const itemAllergens = (item.allergens || []).map(v => v.toLowerCase());
+        if (itemAllergens.some(a => avoidAllergens.includes(a))) return false;
+        // Dietary: if user is vegetarian/vegan, enforce
+        if (dietary.includes('vegan') && !item.isVeg) return false;
+        if (dietary.includes('vegetarian') && !item.isVeg) return false;
+        if (dietary.includes('gluten-free') && (item.ingredients || []).some(i => /gluten|wheat/i.test(i))) return false;
+        return item.isAvailable;
+      })
+      .map(item => {
+        let score = 0;
+        // Higher rating and more reviews
+        score += (item.averageRating || 0) * 2;
+        score += Math.min(item.reviewCount || 0, 50) / 10;
+        // Boost veg if user prefers veg/vegan
+        if (item.isVeg && (dietary.includes('vegetarian') || dietary.includes('vegan'))) score += 2;
+        // Prefer moderate spice by default
+        const spice = item.spiceLevel || 0;
+        score += 2 - Math.abs(spice - 2);
+        return { item, score };
+      })
+      .sort((a, b) => b.score - a.score)
+      .slice(0, limit)
+      .map(s => s.item);
+
+    return scored;
   };
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
@@ -799,7 +845,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         setSelectedCategory,
 
         // Utilities
-        generateDailyToken
+        generateDailyToken,
+
+        // Recommendations
+        getRecommendedItems
       }}
     >
       {children}

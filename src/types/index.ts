@@ -7,6 +7,8 @@ export interface User {
   isVerified: boolean;
   createdAt: Date;
   loyaltyPoints?: number;
+  dietaryRestrictions?: string[];
+  allergens?: string[];
 }
 
 export interface MenuItem {

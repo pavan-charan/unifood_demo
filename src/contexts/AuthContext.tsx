@@ -49,6 +49,8 @@ const fetchUserProfile = async (userId: string) => {
       role: profile.role,
       isVerified: profile.is_verified,
       loyaltyPoints: profile.loyalty_points,
+      dietaryRestrictions: profile.dietary_preferences || [],
+      allergens: profile.allergens || [],
       createdAt: new Date(profile.created_at)
     };
     return userData;
@@ -170,7 +172,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             student_id: userData.studentId,
             role: 'student',
             is_verified: false,
-            loyalty_points: 0
+            loyalty_points: 0,
+            dietary_preferences: userData.dietaryRestrictions || [],
+            allergens: userData.allergens || []
           });
 
         if (profileError) {
@@ -334,6 +338,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (updates.name !== undefined) dbUpdates.name = updates.name;
       if (updates.studentId !== undefined) dbUpdates.student_id = updates.studentId;
       if (updates.loyaltyPoints !== undefined) dbUpdates.loyalty_points = updates.loyaltyPoints;
+      if (updates.dietaryRestrictions !== undefined) dbUpdates.dietary_preferences = updates.dietaryRestrictions;
+      if (updates.allergens !== undefined) dbUpdates.allergens = updates.allergens;
       
       // Update in Supabase database
       const { error } = await supabase

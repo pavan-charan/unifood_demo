@@ -1,6 +1,12 @@
 import { loadStripe } from '@stripe/stripe-js'
 
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_...')
+// Handle Vite/browser environment safely (avoid process.env in browser)
+const getStripeKey = () => {
+  const env = (import.meta as any)?.env || {};
+  return env.VITE_STRIPE_PUBLISHABLE_KEY || 'pk_test_...'
+}
+
+const stripePromise = loadStripe(getStripeKey())
 
 export interface PaymentMethod {
   id: string
