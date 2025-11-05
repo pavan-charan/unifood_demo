@@ -157,7 +157,7 @@ const SAMPLE_MENU_ITEMS: MenuItem[] = [
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const [menuItems, setMenuItems] = useState<MenuItem[]>(SAMPLE_MENU_ITEMS);
-  const [cartItems, setCartItems] = useState<MenuItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItem[]>([]);
   const [cartQuantities, setCartQuantities] = useState<Record<string, number>>({});
   const [orders, setOrders] = useState<Order[]>([]);
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -364,12 +364,12 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setTimeSlots(slots);
   };
 
-  const addToCart = (item: MenuItem) => {
+  const addToCart = (item: CartItem) => {
     setCartItems(prev => {
       const existingItemIndex = prev.findIndex(i => i.id === item.id);
       if (existingItemIndex !== -1) {
         const newCartItems = [...prev];
-        newCartItems[existingItemIndex] = { ...newCartItems[existingItemIndex], quantity: (newCartItems[existingItemIndex].quantity || 0) + 1 };
+        newCartItems[existingItemIndex] = { ...newCartItems[existingItemIndex], quantity: newCartItems[existingItemIndex].quantity + 1 };
         return newCartItems;
       } else {
         return [...prev, { ...item, quantity: 1 }];
@@ -393,6 +393,9 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const updateCartQuantity = (itemId: string, quantity: number) => {
     setCartItems(prev => {
+      if (quantity === 0) {
+        return prev.filter(item => item.id !== itemId);
+      }
       return prev.map(item => {
         if (item.id === itemId) {
           return { ...item, quantity: quantity };
@@ -411,7 +414,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setCartQuantities({});
   };
 
-  const cartTotal = cartItems.reduce((total, item) => total + (item.price * (item.quantity || 0)), 0);
+  const cartTotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   const generateDailyToken = (): string => {
     const today = new Date().toISOString().split('T')[0];

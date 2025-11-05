@@ -33,11 +33,10 @@ export interface MenuItem {
   averageRating: number;
   reviewCount: number;
   preparationTime: number;
-  quantity?: number;
 }
 
 export interface CartItem extends MenuItem {
-  quantity?: number;
+  quantity: number;
 }
 
 export interface Order {

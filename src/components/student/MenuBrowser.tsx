@@ -10,9 +10,14 @@ import {
   ShoppingCart
 } from 'lucide-react';
 import { useApp } from '../../contexts/AppContext';
+import { useRecommendations } from '../../contexts/RecommendationContext';
 import { MenuItem } from '../../types';
 
-export const MenuBrowser: React.FC = () => {
+interface MenuBrowserProps {
+  checkAllergen: (item: MenuItem, onProceed: () => void) => void;
+}
+
+export const MenuBrowser: React.FC<MenuBrowserProps> = ({ checkAllergen }) => {
   const { 
     menuItems, 
     addToCart, 
@@ -251,7 +256,7 @@ export const MenuBrowser: React.FC = () => {
                       aria-label="Decrease quantity"
                       onClick={() => {
                         const newQty = cartQuantities[item.id] - 1;
-                        addToCart({ ...item, quantity: newQty });
+                        updateCartQuantity(item.id, newQty);
                       }}
                       className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-300 text-blue-600 hover:bg-blue-50 transition"
                       disabled={cartQuantities[item.id] === 0}
@@ -265,7 +270,7 @@ export const MenuBrowser: React.FC = () => {
                       aria-label="Increase quantity"
                       onClick={() => {
                         const newQty = cartQuantities[item.id] + 1;
-                        addToCart({ ...item, quantity: newQty });
+                        updateCartQuantity(item.id, newQty);
                       }}
                       className="w-8 h-8 flex items-center justify-center rounded-full bg-white border border-gray-300 text-blue-600 hover:bg-blue-50 transition"
                     >
@@ -274,7 +279,7 @@ export const MenuBrowser: React.FC = () => {
                   </div>
                 ) : (
                   <button
-                    onClick={() => addToCart({ ...item, quantity: 1 })}
+                    onClick={() => checkAllergen(item, () => addToCart({ ...item, quantity: 1 } as CartItem))}
                     className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors flex items-center justify-center space-x-2"
                   >
                     <ShoppingCart className="w-4 h-4" />

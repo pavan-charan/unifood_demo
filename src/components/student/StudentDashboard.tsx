@@ -15,6 +15,8 @@ import { useRecommendations } from '../../contexts/RecommendationContext';
 import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { MenuBrowser } from './MenuBrowser';
+import { AlertTriangle } from 'lucide-react';
+import { MenuItem } from '../../types';
 import { Cart } from './Cart';
 import { OrderTracking } from './OrderTracking';
 
@@ -22,7 +24,7 @@ type TabType = 'profile' | 'menu' | 'cart' | 'orders' ;
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
-  const { getProfileRecommendations } = useRecommendations();
+  const { getProfileRecommendations, allergenAlert, setAllergenAlert } = useRecommendations();
   const { 
     orders, 
     notifications, 
@@ -245,7 +247,7 @@ export const StudentDashboard: React.FC = () => {
       case 'profile':
         return renderDashboardOverview();
       case 'menu':
-        return <MenuBrowser />;
+        return <MenuBrowser checkAllergen={checkAllergen} />;
       case 'cart':
         return <Cart />;
       case 'orders':
@@ -294,7 +296,33 @@ export const StudentDashboard: React.FC = () => {
           ))}
         </div>
       </div>
-
+      {allergenAlert && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
+            <div className="p-6 text-center">
+              <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Allergen Warning</h3>
+              <p className="text-gray-600 mb-6">
+                The item you have added in the cart is an allergen to you.
+              </p>
+              <div className="flex justify-center space-x-4">
+                <button
+                  onClick={() => setAllergenAlert(null)}
+                  className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={allergenAlert.proceed}
+                  className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                >
+                  Proceed
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

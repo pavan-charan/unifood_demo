@@ -20,7 +20,7 @@ import { MenuItem } from '../../types';
 
 export const Cart: React.FC = () => {
   const { user } = useAuth();
-  const { getCartRecommendations } = useRecommendations();
+  const { getCartRecommendations, checkAllergen } = useRecommendations();
   const {
     cartItems,
     updateCartQuantity,
@@ -39,20 +39,12 @@ export const Cart: React.FC = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<PaymentMethod | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'details' | 'payment' | 'processing'>('details');
-  const [allergenAlert, setAllergenAlert] = useState<{ item: MenuItem; proceed: () => void } | null>(null);
 
   const handleAddToCart = (item: MenuItem, quantity: number) => {
-    const userAllergens = user?.allergens || [];
-    const itemAllergens = item.allergens || [];
-    const hasAllergen = itemAllergens.some(allergen => userAllergens.includes(allergen));
-
-    if (hasAllergen) {
-      setAllergenAlert({
-        item,
-        proceed: () => {
-          updateCartQuantity(item.id, quantity);
-          setAllergenAlert(null);
-        },
+    const isAddingFirstTime = cartItems.find(i => i.id === item.id) === undefined;
+    if (isAddingFirstTime) {
+      checkAllergen(item, () => {
+        updateCartQuantity(item.id, quantity);
       });
     } else {
       updateCartQuantity(item.id, quantity);
@@ -297,34 +289,6 @@ export const Cart: React.FC = () => {
           </div>
         </div>
 
-        {/* Allergen Alert Modal */}
-        {allergenAlert && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg shadow-xl max-w-sm w-full">
-              <div className="p-6 text-center">
-                <AlertTriangle className="w-16 h-16 text-yellow-500 mx-auto mb-4" />
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Allergen Warning</h3>
-                <p className="text-gray-600 mb-6">
-                  The item you have added in the cart is an allergen to you.
-                </p>
-                <div className="flex justify-center space-x-4">
-                  <button
-                    onClick={() => setAllergenAlert(null)}
-                    className="px-6 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={allergenAlert.proceed}
-                    className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                  >
-                    Proceed
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* Checkout Modal */}
         {showCheckout && (
