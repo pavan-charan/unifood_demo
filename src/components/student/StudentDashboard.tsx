@@ -12,6 +12,7 @@ import {
   Star
 } from 'lucide-react';
 import { useRecommendations } from '../../contexts/RecommendationContext';
+import { useApp } from '../../contexts/AppContext';
 import { useAuth } from '../../contexts/AuthContext';
 import { MenuBrowser } from './MenuBrowser';
 import { Cart } from './Cart';
