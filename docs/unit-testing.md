@@ -423,7 +423,7 @@ describe('Header Component', () => {
 
 ### Output
 
-![Header Test Output](placeholder_header_test_output.png)
+![Header Test Output](../testing%20ss/Screenshot%202025-11-08%20151931.png)
 
 ## AppContext Tests
 
@@ -773,7 +773,7 @@ describe('AppContext', () => {
 
 ### Output
 
-![AppContext Test Output](placeholder_appcontext_test_output.png)
+![AppContext Test Output](../testing%20ss/Screenshot%202025-11-08%20151941.png)
 
 ## AuthContext Tests
 
@@ -1079,7 +1079,7 @@ describe('AuthContext', () => {
 
 ### Output
 
-![AuthContext Test Output](placeholder_authcontext_test_output.png)
+![AuthContext Test Output](../testing%20ss/Screenshot%202025-11-08%20151951.png)
 
 ## RecommendationContext Tests
 
