@@ -334,4 +334,4 @@ describe('User Flow Integration Tests', () => {
 
 ### Output
 
-![User Flow Test Output](placeholder_user_flow_test_output.png)
+![User Flow Test Output](../testing%20ss/Screenshot%202025-11-08%20152011.png)
