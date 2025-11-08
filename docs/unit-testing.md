@@ -1311,7 +1311,7 @@ describe('Email Utilities', () => {
 
 ### Output
 
-![Email Utilities Test Output](placeholder_email_test_output.png)
+![Email Utilities Test Output](../testing%20ss/Screenshot%202025-11-08%20153546.png)
 
 ## Password Validator Tests
 
@@ -1434,7 +1434,7 @@ describe('Password Validator', () => {
 
 ### Output
 
-![Password Validator Test Output](placeholder_passwordvalidator_test_output.png)
+![Password Validator Test Output](../testing%20ss/Screenshot%202025-11-08%20153559.png)
 
 ## Payments Utilities Tests
 
@@ -1647,4 +1647,4 @@ describe('Payments Utilities', () => {
 
 ### Output
 
-![Payments Test Output](placeholder_payments_test_output.png)
+![Payments Test Output](../testing%20ss/Screenshot%202025-11-08%20153616.png)
