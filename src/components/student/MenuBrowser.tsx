@@ -26,6 +26,7 @@ export const MenuBrowser: React.FC<MenuBrowserProps> = ({ checkAllergen }) => {
     selectedCategory,
     setSelectedCategory,
     cartQuantities // <-- Use context for persistent quantities
+    , updateCartQuantity
   } = useApp();
 
   const [priceRange, setPriceRange] = useState({ min: 0, max: 500 });

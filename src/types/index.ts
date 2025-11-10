@@ -75,7 +75,7 @@ export interface Notification {
   userId: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
+  type: 'success' | 'warning' | 'error' | 'info';
   read: boolean;
   createdAt: Date;
 }
